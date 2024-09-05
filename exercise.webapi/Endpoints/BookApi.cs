@@ -14,6 +14,7 @@ namespace exercise.webapi.Endpoints
 
             books.MapGet("/books", GetBooks);
             books.MapPut("/{id}", ChangeBookAuthor);
+            books.MapDelete("/{id}", DeleteBook);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
