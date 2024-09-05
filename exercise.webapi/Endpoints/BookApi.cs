@@ -15,6 +15,7 @@ namespace exercise.webapi.Endpoints
             books.MapGet("/books", GetBooks);
             books.MapPut("/{id}", ChangeBookAuthor);
             books.MapDelete("/{id}", DeleteBook);
+            books.MapPost("/", AddABook);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -53,6 +54,27 @@ namespace exercise.webapi.Endpoints
             catch (Exception ex)
             {
                 return TypedResults.Problem(ex.Message);
+            }
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public static async Task<IResult> AddABook(IBookRepository repository, BookPostModel model)
+        {
+            try
+            {
+                var authorTarget = repository.GetAuthorById(model.AuthorId);
+                if (authorTarget is null)
+                {
+                    return TypedResults.NotFound("Author Not Found");
+                }
+                var result = await repository.AddBook(new Book() { Title=model.Title, AuthorId=model.AuthorId });
+                return TypedResults.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.BadRequest("Invalid book object");
             }
         }
     }
