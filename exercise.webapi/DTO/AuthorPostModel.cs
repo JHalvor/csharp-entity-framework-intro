@@ -1,4 +1,4 @@
-﻿namespace exercise.webapi.ViewModels
+﻿namespace exercise.webapi.DTO
 {
     public class AuthorPostModel
     {

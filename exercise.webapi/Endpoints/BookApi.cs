@@ -1,6 +1,6 @@
-﻿using exercise.webapi.Models;
+﻿using exercise.webapi.DTO;
+using exercise.webapi.Models;
 using exercise.webapi.Repository;
-using exercise.webapi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using static System.Reflection.Metadata.BlobBuilder;
 

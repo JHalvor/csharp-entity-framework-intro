@@ -2,6 +2,6 @@
 {
     public class GetBooksResponse
     {
-        public List<DTOBook> Books { get; set; } = new List<DTOBook>();
+        public List<ResponseBook> Books { get; set; } = new List<ResponseBook>();
     }
 }

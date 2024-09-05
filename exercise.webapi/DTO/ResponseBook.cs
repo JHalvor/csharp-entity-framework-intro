@@ -1,9 +1,9 @@
 ﻿namespace exercise.webapi.DTO
 {
-    public class DTOBook
+    public class ResponseBook
     {
         public string Title { get; set; }
 
-        public DTOAuthor Author { get; set; }
+        public ResponseAuthor Author { get; set; }
     }
 }
