@@ -8,7 +8,7 @@ namespace exercise.webapi.Endpoints
 {
     public static class BookEndpoint
     {
-        public static void ConfigureBooksApi(this WebApplication app)
+        public static void ConfigureBookEndpoints(this WebApplication app)
         {
             var books = app.MapGroup("books");
 
@@ -99,7 +99,6 @@ namespace exercise.webapi.Endpoints
 
                 //custom DTO
                 ResponseBook responseBook = MakeResponseBookDTO(target);
-
                 return TypedResults.Ok(responseBook);
             }
             catch (Exception ex)
@@ -108,10 +107,10 @@ namespace exercise.webapi.Endpoints
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public static async Task<IResult> AddABook(IBookRepository bookRepository, IBookRepository authorRepository, BookPostModel model)
+        public static async Task<IResult> AddABook(IBookRepository bookRepository, IAuthorRepository authorRepository, BookPostModel model)
         {
             try
             {
@@ -121,7 +120,9 @@ namespace exercise.webapi.Endpoints
                     return TypedResults.NotFound("Author Not Found");
                 }
                 var result = await bookRepository.Add(new Book() { Title=model.Title, AuthorId=model.AuthorId });
-                return TypedResults.Ok(result);
+                var target = await bookRepository.GetById(result.Id);
+                ResponseBook responseBook = MakeResponseBookDTO(target);
+                return TypedResults.Created($"https://localhost:7054/books/{responseBook.Id}", responseBook);
             }
             catch (Exception ex)
             {

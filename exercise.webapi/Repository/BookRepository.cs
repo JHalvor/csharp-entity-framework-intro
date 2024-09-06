@@ -15,8 +15,6 @@ namespace exercise.webapi.Repository
 
         public async Task<Book> Add(Book entity)
         {
-            //var authorTarget = await _db.Authors.FirstOrDefaultAsync(a => a.Id == entity.AuthorId);
-            //entity.Author = authorTarget;
             await _db.AddAsync(entity);
             await _db.SaveChangesAsync();
             return entity;
