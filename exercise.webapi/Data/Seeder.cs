@@ -108,13 +108,6 @@ namespace exercise.webapi.Data
                 //book.Author = _authors[book.AuthorId-1];
                 _books.Add(book);
             }
-
-            //for (int y = 1; y < entitiesToCreate; y++) 
-            //{
-            //    Author author = _authors.FirstOrDefault(x => x.Id == y);
-            //    //author.Books = _books.Where(b => b.AuthorId == author.Id).Select(book => book).ToList();
-            //    author.Books = (from book in _books where book.Author.Id == author.Id select book).ToList();
-            //}
         }
         public List<Author> Authors { get { return _authors; } }
         public List<Book> Books { get { return _books; } }

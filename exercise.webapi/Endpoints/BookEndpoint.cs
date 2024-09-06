@@ -14,7 +14,7 @@ namespace exercise.webapi.Endpoints
 
             books.MapGet("/books", GetBooks);
             books.MapGet("/{id}", GetABook);
-            books.MapPut("/{id}", ChangeBookAuthor);
+            books.MapPut("/{id}", UpdateBook);
             books.MapDelete("/{id}", DeleteBook);
             books.MapPost("/", AddABook);
         }
@@ -61,7 +61,7 @@ namespace exercise.webapi.Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public static async Task<IResult> ChangeBookAuthor(IBookRepository bookRepository, IAuthorRepository authorRepository, int bookId, int authorId)
+        public static async Task<IResult> UpdateBook(IBookRepository bookRepository, IAuthorRepository authorRepository, int bookId, int authorId)
         {
             try
             {
@@ -136,13 +136,16 @@ namespace exercise.webapi.Endpoints
             responseBook.Title = book.Title;
             responseBook.Id = book.Id;
 
-            BookEndpointResponseAuthor author = new BookEndpointResponseAuthor();
-            author.Id = book.Author.Id;
-            author.FirstName = book.Author.FirstName;
-            author.LastName = book.Author.LastName;
-            author.Email = book.Author.Email;
+            if (book.AuthorId != 0 && book.Author is not null)
+            {
+                BookEndpointResponseAuthor author = new BookEndpointResponseAuthor();
+                author.Id = book.Author.Id;
+                author.FirstName = book.Author.FirstName;
+                author.LastName = book.Author.LastName;
+                author.Email = book.Author.Email;
 
-            responseBook.Author = author;
+                responseBook.Author = author;
+            }
 
             return responseBook;
         }

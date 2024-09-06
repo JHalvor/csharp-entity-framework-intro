@@ -1,6 +1,7 @@
 ﻿using exercise.webapi.Data;
 using exercise.webapi.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace exercise.webapi.Repository
 {
