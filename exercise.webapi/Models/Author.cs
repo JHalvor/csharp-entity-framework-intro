@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace exercise.webapi.Models
@@ -6,6 +8,7 @@ namespace exercise.webapi.Models
     [Table("authors")]
     public class Author
     {
+        [Key]
         [Column("id")]
         public int Id { get; set; }
 

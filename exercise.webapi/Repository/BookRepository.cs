@@ -37,11 +37,13 @@ namespace exercise.webapi.Repository
 
         public async Task<Book> GetById(int id)
         {
-            return await _db.Books.FirstOrDefaultAsync(b => b.Id == id);
+            return await _db.Books.Include(b => b.Author).FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task<Book> UpdateById(int id, Book entity)
+        public async Task<Book> UpdateById(int bookId, int authorId)
         {
+            var entity = await _db.Books.FirstOrDefaultAsync(b => b.Id == bookId);
+            entity.AuthorId = authorId;
             _db.Attach(entity).State = EntityState.Modified;
             await _db.SaveChangesAsync();
             return entity;

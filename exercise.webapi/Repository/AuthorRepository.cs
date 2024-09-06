@@ -13,29 +13,36 @@ namespace exercise.webapi.Repository
             _db = db;
         }
 
-        public Task<Author> Add(Author entity)
+        public async Task<Author> Add(Author entity)
         {
-            throw new NotImplementedException();
+            await _db.AddAsync(entity);
+            await _db.SaveChangesAsync();
+            return entity;
         }
 
-        public Task<Author> DeleteById(int id)
+        public async Task<Author> DeleteById(int id)
         {
-            throw new NotImplementedException();
+            var target = await _db.Authors.FirstOrDefaultAsync(b => b.Id == id);
+            _db.Authors.Remove(target);
+            await _db.SaveChangesAsync();
+            return target;
         }
 
-        public async Task<List<Author>> GetAllAuthors()
+        public async Task<IEnumerable<Author>> GetAllAuthors()
         {
             return await _db.Authors.Include(a => a.Books).ToListAsync();
         }
 
-        public Task<Author> GetById(int id)
+        public async Task<Author> GetById(int id)
         {
-            throw new NotImplementedException();
+            return await _db.Authors.Include(a => a.Books).FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public Task<Author> UpdateById(int id, Author entity)
+        public async Task<Author> UpdateById(int id, Author entity)
         {
-            throw new NotImplementedException();
+            _db.Attach(entity).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
+            return entity;
         }
     }
 }

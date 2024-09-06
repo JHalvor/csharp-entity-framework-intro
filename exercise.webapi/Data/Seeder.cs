@@ -95,6 +95,7 @@ namespace exercise.webapi.Data
                 author.FirstName = _firstnames[authorRandom.Next(_firstnames.Count)];
                 author.LastName = _lastnames[authorRandom.Next(_lastnames.Count)];
                 author.Email = $"{author.FirstName}.{author.LastName}@{_domain[authorRandom.Next(_domain.Count)]}".ToLower();
+                author.Books = (from book in _books where book.Author.Id == author.Id select book).ToList();
                 _authors.Add(author);
             }
 
@@ -105,7 +106,7 @@ namespace exercise.webapi.Data
                 book.Id = y;
                 book.Title = $"{_firstword[bookRandom.Next(_firstword.Count)]} {_secondword[bookRandom.Next(_secondword.Count)]} {_thirdword[bookRandom.Next(_thirdword.Count)]}";
                 book.AuthorId = _authors[authorRandom.Next(_authors.Count)].Id;
-                //book.Author = authors[book.AuthorId-1];
+                //book.Author = _authors[book.AuthorId-1];
                 _books.Add(book);
             }
 
