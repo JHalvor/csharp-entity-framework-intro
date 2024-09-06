@@ -6,6 +6,6 @@
 
         public string Title { get; set; }
 
-        public ResponseAuthor Author { get; set; }
+        public BookEndpointResponseAuthor Author { get; set; }
     }
 }

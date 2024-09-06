@@ -29,7 +29,7 @@ namespace exercise.webapi.Endpoints
 
             foreach (Book b in results)
             {
-                ResponseBook responseBook = MakeResponseBookDTO(b);
+                BookEndpointResponseBook responseBook = MakeResponseBookDTO(b);
 
                 response.Books.Add(responseBook);
             }
@@ -49,7 +49,7 @@ namespace exercise.webapi.Endpoints
                     return TypedResults.NotFound("Book Not Found");
                 }
 
-                ResponseBook responseBook = MakeResponseBookDTO(target);
+                BookEndpointResponseBook responseBook = MakeResponseBookDTO(target);
 
                 return TypedResults.Ok(responseBook);
             }
@@ -80,7 +80,7 @@ namespace exercise.webapi.Endpoints
                 var updatedTarget = await bookRepository.UpdateById(bookId, authorId);
 
                 // Custom DTO
-                ResponseBook responseBook = MakeResponseBookDTO(updatedTarget);
+                BookEndpointResponseBook responseBook = MakeResponseBookDTO(updatedTarget);
                 return TypedResults.Ok(responseBook);
             }
             catch (Exception ex)
@@ -98,7 +98,7 @@ namespace exercise.webapi.Endpoints
                 var target = await repository.DeleteById(id);
 
                 //custom DTO
-                ResponseBook responseBook = MakeResponseBookDTO(target);
+                BookEndpointResponseBook responseBook = MakeResponseBookDTO(target);
                 return TypedResults.Ok(responseBook);
             }
             catch (Exception ex)
@@ -121,7 +121,7 @@ namespace exercise.webapi.Endpoints
                 }
                 var result = await bookRepository.Add(new Book() { Title=model.Title, AuthorId=model.AuthorId });
                 var target = await bookRepository.GetById(result.Id);
-                ResponseBook responseBook = MakeResponseBookDTO(target);
+                BookEndpointResponseBook responseBook = MakeResponseBookDTO(target);
                 return TypedResults.Created($"https://localhost:7054/books/{responseBook.Id}", responseBook);
             }
             catch (Exception ex)
@@ -130,13 +130,13 @@ namespace exercise.webapi.Endpoints
             }
         }
 
-        public static ResponseBook MakeResponseBookDTO(Book book)
+        public static BookEndpointResponseBook MakeResponseBookDTO(Book book)
         {
-            ResponseBook responseBook = new ResponseBook();
+            BookEndpointResponseBook responseBook = new BookEndpointResponseBook();
             responseBook.Title = book.Title;
             responseBook.Id = book.Id;
 
-            ResponseAuthor author = new ResponseAuthor();
+            BookEndpointResponseAuthor author = new BookEndpointResponseAuthor();
             author.Id = book.Author.Id;
             author.FirstName = book.Author.FirstName;
             author.LastName = book.Author.LastName;

@@ -1,4 +1,6 @@
-﻿namespace exercise.webapi.DTO
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace exercise.webapi.DTO
 {
     public class BookEndpointResponseAuthor
     {

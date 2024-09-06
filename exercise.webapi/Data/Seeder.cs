@@ -86,9 +86,9 @@ namespace exercise.webapi.Data
             Random authorRandom = new Random();
             Random bookRandom = new Random();
 
+            int entitiesToCreate = 30;
 
-
-            for (int x = 1; x < 250; x++)
+            for (int x = 1; x < entitiesToCreate; x++)
             {
                 Author author = new Author();
                 author.Id = x;
@@ -99,8 +99,7 @@ namespace exercise.webapi.Data
                 _authors.Add(author);
             }
 
-
-            for (int y = 1; y < 250; y++)
+            for (int y = 1; y < entitiesToCreate; y++)
             {
                 Book book = new Book();
                 book.Id = y;
@@ -110,7 +109,12 @@ namespace exercise.webapi.Data
                 _books.Add(book);
             }
 
-
+            //for (int y = 1; y < entitiesToCreate; y++) 
+            //{
+            //    Author author = _authors.FirstOrDefault(x => x.Id == y);
+            //    //author.Books = _books.Where(b => b.AuthorId == author.Id).Select(book => book).ToList();
+            //    author.Books = (from book in _books where book.Author.Id == author.Id select book).ToList();
+            //}
         }
         public List<Author> Authors { get { return _authors; } }
         public List<Book> Books { get { return _books; } }

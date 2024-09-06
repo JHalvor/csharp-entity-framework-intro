@@ -30,7 +30,8 @@ namespace exercise.webapi.Repository
 
         public async Task<IEnumerable<Author>> GetAllAuthors()
         {
-            return await _db.Authors.Include(a => a.Books).ToListAsync();
+            var target = await _db.Authors.Include(a => a.Books).ToListAsync();
+            return target;
         }
 
         public async Task<Author> GetById(int id)

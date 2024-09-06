@@ -11,42 +11,42 @@ namespace exercise.webapi.Endpoints
         {
             var authors = app.MapGroup("authors");
 
-            //authors.MapGet("/authors", GetAuthors);
+            authors.MapGet("/authors", GetAuthors);
             //books.MapGet("/{id}", GetAAuthor);
             //books.MapPut("/{id}", UpdateAuthor);
             //books.MapDelete("/{id}", DeleteAuthor);
             //books.MapPost("/", AddAAuthor);
         }
 
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //public static async Task<IResult> GetAuthors(IAuthorRepository repository)
-        //{
-        //    //custom DTO
-        //    GetAuthorsResponse response = new GetAuthorsResponse();
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public static async Task<IResult> GetAuthors(IAuthorRepository repository)
+        {
+            //custom DTO
+            GetAuthorsResponse response = new GetAuthorsResponse();
 
-        //    var results = await repository.GetAllAuthors();
+            var results = await repository.GetAllAuthors();
 
-        //    foreach (Author a in results)
-        //    {
-        //        ResponseAuthor responseAuthor = new ResponseAuthor();
-        //        responseAuthor.Id = a.Id;
-        //        responseAuthor.FirstName = a.FirstName;
-        //        responseAuthor.LastName = a.LastName;
-        //        responseAuthor.Email = a.Email;
+            foreach (Author a in results)
+            {
+                AuthorEndpointResponseAuthor responseAuthor = new AuthorEndpointResponseAuthor();
+                responseAuthor.Id = a.Id;
+                responseAuthor.FirstName = a.FirstName;
+                responseAuthor.LastName = a.LastName;
+                responseAuthor.Email = a.Email;
 
-        //        foreach (Book b in a.Books)
-        //        {
-        //            ResponseBook responseBook = new ResponseBook();
-        //            responseBook.Id = b.Id;
-        //            responseBook.Title = b.Title;
-        //            responseAuthor.Books.Add(responseBook);
-        //        }
+                foreach (Book b in a.Books)
+                {
+                    AuthorEndpointResponseBook responseBook = new AuthorEndpointResponseBook();
+                    responseBook.Id = b.Id;
+                    responseBook.Title = b.Title;
+                    responseAuthor.Books.Add(responseBook);
+                }
 
-        //        response.Authors.Add(responseAuthor);
-        //    }
+                response.Authors.Add(responseAuthor);
+            }
 
-        //    return TypedResults.Ok(results);
-        //}
+            return TypedResults.Ok(response);
+        }
 
         //[ProducesResponseType(StatusCodes.Status200OK)]
         //[ProducesResponseType(StatusCodes.Status404NotFound)]

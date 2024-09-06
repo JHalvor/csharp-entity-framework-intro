@@ -2,6 +2,6 @@
 {
     public class GetAuthorsResponse
     {
-        public List<ResponseAuthor> Authors { get; set; } = new List<ResponseAuthor>();
+        public List<AuthorEndpointResponseAuthor> Authors { get; set; } = new List<AuthorEndpointResponseAuthor>();
     }
 }
