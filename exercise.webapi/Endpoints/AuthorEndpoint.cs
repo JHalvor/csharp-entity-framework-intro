@@ -12,10 +12,10 @@ namespace exercise.webapi.Endpoints
             var authors = app.MapGroup("authors");
 
             authors.MapGet("/authors", GetAuthors);
-            //books.MapGet("/{id}", GetAAuthor);
-            //books.MapPut("/{id}", UpdateAuthor);
-            //books.MapDelete("/{id}", DeleteAuthor);
-            //books.MapPost("/", AddAAuthor);
+            authors.MapGet("/{id}", GetAAuthor);
+            authors.MapPut("/{id}", UpdateAuthor);
+            authors.MapDelete("/{id}", DeleteAuthor);
+            authors.MapPost("/", AddAAuthor);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -28,19 +28,7 @@ namespace exercise.webapi.Endpoints
 
             foreach (Author a in results)
             {
-                AuthorEndpointResponseAuthor responseAuthor = new AuthorEndpointResponseAuthor();
-                responseAuthor.Id = a.Id;
-                responseAuthor.FirstName = a.FirstName;
-                responseAuthor.LastName = a.LastName;
-                responseAuthor.Email = a.Email;
-
-                foreach (Book b in a.Books)
-                {
-                    AuthorEndpointResponseBook responseBook = new AuthorEndpointResponseBook();
-                    responseBook.Id = b.Id;
-                    responseBook.Title = b.Title;
-                    responseAuthor.Books.Add(responseBook);
-                }
+                AuthorEndpointResponseAuthor responseAuthor = MakeResponseAuthorDTO(a);
 
                 response.Authors.Add(responseAuthor);
             }
@@ -48,103 +36,105 @@ namespace exercise.webapi.Endpoints
             return TypedResults.Ok(response);
         }
 
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public static async Task<IResult> GetAAuthor(IBookRepository repository, int id)
-        //{
-        //    try
-        //    {
-        //        var target = await repository.GetById(id);
-        //        if (target is null)
-        //        {
-        //            return TypedResults.NotFound("Book Not Found");
-        //        }
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public static async Task<IResult> GetAAuthor(IAuthorRepository repository, int id)
+        {
+            try
+            {
+                var target = await repository.GetById(id);
+                if (target is null)
+                {
+                    return TypedResults.NotFound("Author Not Found");
+                }
 
-        //        ResponseBook responseBook = MakeResponseBookDTO(target);
+                AuthorEndpointResponseAuthor responseAuthor = MakeResponseAuthorDTO(target);
 
-        //        return TypedResults.Ok(responseBook);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return TypedResults.BadRequest("Invalid book object");
-        //    }
-        //}
+                return TypedResults.Ok(responseAuthor);
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.BadRequest("Invalid Author object");
+            }
+        }
 
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public static async Task<IResult> DeleteAuthor(IBookRepository repository, int id, AuthorPutModel model)
-        //{
-        //    try
-        //    {
-        //        var target = await repository.GetById(id);
-        //        target.Author = new Author() { Id = target.AuthorId, FirstName = model.FirstName, LastName = model.LastName, Email = model.Email };
-        //        await repository.UpdateById(id, target);
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public static async Task<IResult> UpdateAuthor(IAuthorRepository repository, int id, AuthorPostModel model)
+        {
+            try
+            {
+                var target = await repository.GetById(id);
+                if (target is null)
+                {
+                    return TypedResults.NotFound("Author Not Found");
+                }
 
-        //        // Custom DTO
-        //        ResponseBook responseBook = MakeResponseBookDTO(target);
-        //        return TypedResults.Ok(responseBook);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return TypedResults.Problem(ex.Message);
-        //    }
-        //}
+                var updatedTarget = await repository.UpdateById(id, new Author() { FirstName=model.FirstName, LastName=model.LastName, Email=model.Email });
 
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public static async Task<IResult> AddAAuthor(IBookRepository repository, int id)
-        //{
-        //    try
-        //    {
-        //        var target = await repository.DeleteById(id);
+                // Custom DTO
+                AuthorEndpointResponseAuthor responseAuthor = MakeResponseAuthorDTO(updatedTarget);
+                return TypedResults.Ok(responseAuthor);
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.Problem(ex.Message);
+            }
+        }
 
-        //        //custom DTO
-        //        ResponseBook responseBook = MakeResponseBookDTO(target);
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public static async Task<IResult> DeleteAuthor(IAuthorRepository repository, int id)
+        {
+            try
+            {
+                var target = await repository.DeleteById(id);
 
-        //        return TypedResults.Ok(responseBook);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return TypedResults.Problem(ex.Message);
-        //    }
-        //}
+                //custom DTO
+                AuthorEndpointResponseAuthor responseAuthor = MakeResponseAuthorDTO(target);
+                return TypedResults.Ok(responseAuthor);
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.Problem(ex.Message);
+            }
+        }
 
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //public static async Task<IResult> AddABook(IBookRepository bookRepository, IBookRepository authorRepository, BookPostModel model)
-        //{
-        //    try
-        //    {
-        //        var authorTarget = await authorRepository.GetById(model.AuthorId);
-        //        if (authorTarget is null)
-        //        {
-        //            return TypedResults.NotFound("Author Not Found");
-        //        }
-        //        var result = await bookRepository.Add(new Book() { Title = model.Title, AuthorId = model.AuthorId });
-        //        return TypedResults.Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return TypedResults.BadRequest("Invalid book object");
-        //    }
-        //}
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public static async Task<IResult> AddAAuthor(IAuthorRepository repository, AuthorPostModel model)
+        {
+            try
+            {
+                var result = await repository.Add(new Author() { FirstName = model.FirstName, LastName = model.LastName, Email = model.Email });
+                var target = await repository.GetById(result.Id);
+                AuthorEndpointResponseAuthor responseAuthor = MakeResponseAuthorDTO(target);
+                return TypedResults.Created($"https://localhost:7054/authors/{responseAuthor.Id}", responseAuthor);
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.BadRequest("Invalid author object");
+            }
+        }
 
-        //public static ResponseBook MakeResponseBookDTO(Book book)
-        //{
-        //    ResponseBook responseBook = new ResponseBook();
-        //    responseBook.Title = book.Title;
-        //    responseBook.Id = book.Id;
+        public static AuthorEndpointResponseAuthor MakeResponseAuthorDTO(Author author)
+        {
+            AuthorEndpointResponseAuthor responseAuthor = new AuthorEndpointResponseAuthor();
+            responseAuthor.Id = author.Id;
+            responseAuthor.FirstName = author.FirstName;
+            responseAuthor.LastName = author.LastName;
+            responseAuthor.Email = author.Email;
 
-        //    ResponseAuthor author = new ResponseAuthor();
-        //    author.Id = book.Author.Id;
-        //    author.FirstName = book.Author.FirstName;
-        //    author.LastName = book.Author.LastName;
-        //    author.Email = book.Author.Email;
+            foreach (Book b in author.Books)
+            {
+                AuthorEndpointResponseBook responseBook = new AuthorEndpointResponseBook();
+                responseBook.Id = b.Id;
+                responseBook.Title = b.Title;
+                responseAuthor.Books.Add(responseBook);
+            }
 
-        //    responseBook.Author = author;
-
-        //    return responseBook;
-        //}
+            return responseAuthor;
+        }
     }
 }

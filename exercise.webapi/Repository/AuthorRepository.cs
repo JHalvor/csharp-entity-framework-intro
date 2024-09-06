@@ -1,6 +1,7 @@
 ﻿using exercise.webapi.Data;
 using exercise.webapi.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace exercise.webapi.Repository
 {
@@ -41,9 +42,13 @@ namespace exercise.webapi.Repository
 
         public async Task<Author> UpdateById(int id, Author entity)
         {
-            _db.Attach(entity).State = EntityState.Modified;
+            var target = await _db.Authors.FirstOrDefaultAsync(a => a.Id == id);
+            target.FirstName = entity.FirstName;
+            target.LastName = entity.LastName;
+            target.Email = entity.Email;
+            _db.Attach(target).State = EntityState.Modified;
             await _db.SaveChangesAsync();
-            return entity;
+            return target;
         }
     }
 }
