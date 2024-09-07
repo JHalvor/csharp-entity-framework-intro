@@ -12,10 +12,5 @@ namespace exercise.webapi.Models
 
         [Column("title")]
         public string Title { get; set; }
-
-        [ForeignKey("authorFk")]
-        public int AuthorId { get; set; }
-
-        public Author Author { get; set; }
     }
 }

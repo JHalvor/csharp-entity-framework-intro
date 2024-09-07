@@ -23,7 +23,7 @@ namespace exercise.webapi.Repository
 
         public async Task<Author> DeleteById(int id)
         {
-            var target = await _db.Authors.FirstOrDefaultAsync(b => b.Id == id);
+            var target = await _db.Authors.FirstOrDefaultAsync(a => a.Id == id);
             _db.Authors.Remove(target);
             await _db.SaveChangesAsync();
             return target;
@@ -31,13 +31,12 @@ namespace exercise.webapi.Repository
 
         public async Task<IEnumerable<Author>> GetAllAuthors()
         {
-            var target = await _db.Authors.Include(a => a.Books).ToListAsync();
-            return target;
+            return await _db.Authors.ToListAsync();
         }
 
         public async Task<Author> GetById(int id)
         {
-            return await _db.Authors.Include(a => a.Books).FirstOrDefaultAsync(a => a.Id == id);
+            return await _db.Authors.FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<Author> UpdateById(int id, Author entity)

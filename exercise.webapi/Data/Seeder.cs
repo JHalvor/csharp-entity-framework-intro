@@ -79,6 +79,7 @@ namespace exercise.webapi.Data
 
         private List<Author> _authors = new List<Author>();
         private List<Book> _books = new List<Book>();
+        private List<Registry> _registries = new List<Registry>();
 
         public Seeder()
         {
@@ -95,7 +96,6 @@ namespace exercise.webapi.Data
                 author.FirstName = _firstnames[authorRandom.Next(_firstnames.Count)];
                 author.LastName = _lastnames[authorRandom.Next(_lastnames.Count)];
                 author.Email = $"{author.FirstName}.{author.LastName}@{_domain[authorRandom.Next(_domain.Count)]}".ToLower();
-                author.Books = (from book in _books where book.Author.Id == author.Id select book).ToList();
                 _authors.Add(author);
             }
 
@@ -104,12 +104,20 @@ namespace exercise.webapi.Data
                 Book book = new Book();
                 book.Id = y;
                 book.Title = $"{_firstword[bookRandom.Next(_firstword.Count)]} {_secondword[bookRandom.Next(_secondword.Count)]} {_thirdword[bookRandom.Next(_thirdword.Count)]}";
-                book.AuthorId = _authors[authorRandom.Next(_authors.Count)].Id;
-                //book.Author = _authors[book.AuthorId-1];
                 _books.Add(book);
+            }
+
+            for (int y = 1; y < entitiesToCreate * 3; y++)
+            {
+                Registry registry = new Registry();
+                registry.AuthorId = _authors[authorRandom.Next(_authors.Count)].Id;
+                registry.BookId = _books[bookRandom.Next(_books.Count)].Id;
+
+                _registries.Add(registry);
             }
         }
         public List<Author> Authors { get { return _authors; } }
         public List<Book> Books { get { return _books; } }
+        public List<Registry> Registries { get { return _registries; } }
     }
 }

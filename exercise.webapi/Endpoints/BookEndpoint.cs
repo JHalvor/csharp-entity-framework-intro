@@ -20,16 +20,21 @@ namespace exercise.webapi.Endpoints
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public static async Task<IResult> GetBooks(IBookRepository repository)
+        public static async Task<IResult> GetBooks(IBookRepository bookRepository, IAuthorRepository authorRepository, IRegistryRepository registryRepository)
         {
             //custom DTO
             GetBooksResponse response = new GetBooksResponse();
 
-            var results = await repository.GetAllBooks();
+            var results = await bookRepository.GetAllBooks();
 
             foreach (Book b in results)
             {
-                BookEndpointResponseBook responseBook = MakeResponseBookDTO(b);
+                var registries = await registryRepository.GetRegistriesBookId(b.Id);
+                List<int> authorIds = registries.Select(r => r.AuthorId).ToList();
+                List<Author> authors = new List<Author>();
+                authorIds.ForEach(async aId => authors.Add(await authorRepository.GetById(aId)));
+
+                BookEndpointResponseBook responseBook = MakeResponseBookDTO(b, authors);
 
                 response.Books.Add(responseBook);
             }
@@ -130,21 +135,20 @@ namespace exercise.webapi.Endpoints
             }
         }
 
-        public static BookEndpointResponseBook MakeResponseBookDTO(Book book)
+        public static BookEndpointResponseBook MakeResponseBookDTO(Book book, List<Author> authors)
         {
             BookEndpointResponseBook responseBook = new BookEndpointResponseBook();
             responseBook.Title = book.Title;
             responseBook.Id = book.Id;
 
-            if (book.AuthorId != 0 && book.Author is not null)
+            foreach (Author a in authors)
             {
                 BookEndpointResponseAuthor author = new BookEndpointResponseAuthor();
-                author.Id = book.Author.Id;
-                author.FirstName = book.Author.FirstName;
-                author.LastName = book.Author.LastName;
-                author.Email = book.Author.Email;
-
-                responseBook.Author = author;
+                author.Id = a.Id;
+                author.FirstName = a.FirstName;
+                author.LastName = a.LastName;
+                author.Email = a.Email;
+                responseBook.Authors.Add(author);
             }
 
             return responseBook;

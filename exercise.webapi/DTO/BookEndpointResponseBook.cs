@@ -6,6 +6,6 @@
 
         public string Title { get; set; }
 
-        public BookEndpointResponseAuthor Author { get; set; }
+        public List<BookEndpointResponseAuthor> Authors { get; set; } = new List<BookEndpointResponseAuthor>();
     }
 }
