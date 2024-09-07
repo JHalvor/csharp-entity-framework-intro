@@ -13,11 +13,7 @@ namespace exercise.webapi.Models
         [ForeignKey("authorFk")]
         public int AuthorId { get; set; }
 
-        public Author Author { get; set; }
-
         [ForeignKey("bookFk")]
         public int BookId { get; set; }
-
-        public Book Book { get; set; }
     }
 }

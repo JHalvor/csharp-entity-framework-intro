@@ -107,9 +107,10 @@ namespace exercise.webapi.Data
                 _books.Add(book);
             }
 
-            for (int y = 1; y < entitiesToCreate * 3; y++)
+            for (int z = 1; z < entitiesToCreate * 3; z++)
             {
                 Registry registry = new Registry();
+                registry.Id = z;
                 registry.AuthorId = _authors[authorRandom.Next(_authors.Count)].Id;
                 registry.BookId = _books[bookRandom.Next(_books.Count)].Id;
 

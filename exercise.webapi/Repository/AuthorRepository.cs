@@ -14,21 +14,6 @@ namespace exercise.webapi.Repository
             _db = db;
         }
 
-        public async Task<Author> Add(Author entity)
-        {
-            await _db.AddAsync(entity);
-            await _db.SaveChangesAsync();
-            return entity;
-        }
-
-        public async Task<Author> DeleteById(int id)
-        {
-            var target = await _db.Authors.FirstOrDefaultAsync(a => a.Id == id);
-            _db.Authors.Remove(target);
-            await _db.SaveChangesAsync();
-            return target;
-        }
-
         public async Task<IEnumerable<Author>> GetAllAuthors()
         {
             return await _db.Authors.ToListAsync();
@@ -39,6 +24,13 @@ namespace exercise.webapi.Repository
             return await _db.Authors.FirstOrDefaultAsync(a => a.Id == id);
         }
 
+        public async Task<Author> Add(Author entity)
+        {
+            await _db.AddAsync(entity);
+            await _db.SaveChangesAsync();
+            return entity;
+        }
+
         public async Task<Author> UpdateById(int id, Author entity)
         {
             var target = await _db.Authors.FirstOrDefaultAsync(a => a.Id == id);
@@ -46,6 +38,14 @@ namespace exercise.webapi.Repository
             target.LastName = entity.LastName;
             target.Email = entity.Email;
             _db.Attach(target).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
+            return target;
+        }
+
+        public async Task<Author> DeleteById(int id)
+        {
+            var target = await _db.Authors.FirstOrDefaultAsync(a => a.Id == id);
+            _db.Authors.Remove(target);
             await _db.SaveChangesAsync();
             return target;
         }

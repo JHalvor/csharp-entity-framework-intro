@@ -2,6 +2,8 @@
 using exercise.webapi.Models;
 using exercise.webapi.Repository;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
+using System.Net;
 using static System.Reflection.Metadata.BlobBuilder;
 
 namespace exercise.webapi.Endpoints
@@ -14,7 +16,7 @@ namespace exercise.webapi.Endpoints
 
             books.MapGet("/books", GetBooks);
             books.MapGet("/{id}", GetABook);
-            books.MapPut("/{id}", UpdateBook);
+            //books.MapPut("/{id}", UpdateBook);
             books.MapDelete("/{id}", DeleteBook);
             books.MapPost("/", AddABook);
         }
@@ -29,10 +31,7 @@ namespace exercise.webapi.Endpoints
 
             foreach (Book b in results)
             {
-                var registries = await registryRepository.GetRegistriesBookId(b.Id);
-                List<int> authorIds = registries.Select(r => r.AuthorId).ToList();
-                List<Author> authors = new List<Author>();
-                authorIds.ForEach(async aId => authors.Add(await authorRepository.GetById(aId)));
+                List<Author> authors = await GetAuthorsByBookId(registryRepository, authorRepository, b.Id);
 
                 BookEndpointResponseBook responseBook = MakeResponseBookDTO(b, authors);
 
@@ -44,17 +43,19 @@ namespace exercise.webapi.Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public static async Task<IResult> GetABook(IBookRepository repository, int id)
+        public static async Task<IResult> GetABook(IBookRepository bookRepository, IRegistryRepository registryRepository, IAuthorRepository authorRepository, int id)
         {
             try
             {
-                var target = await repository.GetById(id);
+                var target = await bookRepository.GetById(id);
                 if (target is null)
                 {
                     return TypedResults.NotFound("Book Not Found");
                 }
 
-                BookEndpointResponseBook responseBook = MakeResponseBookDTO(target);
+                List<Author> authors = await GetAuthorsByBookId(registryRepository, authorRepository, id);
+
+                BookEndpointResponseBook responseBook = MakeResponseBookDTO(target, authors);
 
                 return TypedResults.Ok(responseBook);
             }
@@ -64,46 +65,57 @@ namespace exercise.webapi.Endpoints
             }
         }
 
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //public static async Task<IResult> UpdateBook(IBookRepository bookRepository, IAuthorRepository authorRepository, int bookId, int authorId)
+        //{
+        //    try
+        //    {
+        //        var authorTarget = await authorRepository.GetById(authorId);
+        //        if (authorTarget is null)
+        //        {
+        //            return TypedResults.NotFound("Author Not Found");
+        //        }
+
+        //        var bookTarget = await bookRepository.GetById(bookId);
+        //        if (bookTarget is null)
+        //        {
+        //            return TypedResults.NotFound("Book Not Found");
+        //        }
+
+        //        var updatedTarget = await bookRepository.UpdateById(bookId, authorId);
+
+        //        // Custom DTO
+        //        BookEndpointResponseBook responseBook = MakeResponseBookDTO(updatedTarget);
+        //        return TypedResults.Ok(responseBook);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return TypedResults.Problem(ex.Message);
+        //    }
+        //}
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public static async Task<IResult> UpdateBook(IBookRepository bookRepository, IAuthorRepository authorRepository, int bookId, int authorId)
-        {
-            try
-            {
-                var authorTarget = await authorRepository.GetById(authorId);
-                if (authorTarget is null)
-                {
-                    return TypedResults.NotFound("Author Not Found");
-                }
-
-                var bookTarget = await bookRepository.GetById(bookId);
-                if (bookTarget is null)
-                {
-                    return TypedResults.NotFound("Book Not Found");
-                }
-
-                var updatedTarget = await bookRepository.UpdateById(bookId, authorId);
-
-                // Custom DTO
-                BookEndpointResponseBook responseBook = MakeResponseBookDTO(updatedTarget);
-                return TypedResults.Ok(responseBook);
-            }
-            catch (Exception ex)
-            {
-                return TypedResults.Problem(ex.Message);
-            }
-        }
-
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public static async Task<IResult> DeleteBook(IBookRepository repository, int id)
+        public static async Task<IResult> DeleteBook(IBookRepository repository, IAuthorRepository authorRepository, IRegistryRepository registryRepository, int id)
         {
             try
             {
                 var target = await repository.DeleteById(id);
+                if (target is null)
+                {
+                    return TypedResults.NotFound("Book Not Found");
+                }
+                List<Author> authors = await GetAuthorsByBookId(registryRepository, authorRepository, id);
+                
 
                 //custom DTO
-                BookEndpointResponseBook responseBook = MakeResponseBookDTO(target);
+                BookEndpointResponseBook responseBook = MakeResponseBookDTO(target, authors);
+
+                // Deleting relations between the deleted book and authors
+                var registries = await registryRepository.GetRegistriesByBookId(id);
+                registries.ToList().ForEach(async r => await registryRepository.DeleteById(id, r.AuthorId));
+
                 return TypedResults.Ok(responseBook);
             }
             catch (Exception ex)
@@ -115,18 +127,28 @@ namespace exercise.webapi.Endpoints
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public static async Task<IResult> AddABook(IBookRepository bookRepository, IAuthorRepository authorRepository, BookPostModel model)
+        public static async Task<IResult> AddABook(IBookRepository bookRepository, IAuthorRepository authorRepository, IRegistryRepository registryRepository, BookPostModel model)
         {
             try
             {
-                var authorTarget = await authorRepository.GetById(model.AuthorId);
-                if (authorTarget is null)
+                foreach (int authorId in model.AuthorIds)
                 {
-                    return TypedResults.NotFound("Author Not Found");
+                    var authorTarget = await authorRepository.GetById(authorId);
+                    if (authorTarget is null)
+                    {
+                        return TypedResults.NotFound("Author Not Found");
+                    }
                 }
-                var result = await bookRepository.Add(new Book() { Title=model.Title, AuthorId=model.AuthorId });
-                var target = await bookRepository.GetById(result.Id);
-                BookEndpointResponseBook responseBook = MakeResponseBookDTO(target);
+                
+                var newBook = await bookRepository.Add(new Book() { Title=model.Title });
+
+                // Creating registry relations between the created book and its authors
+                var registries = await registryRepository.GetRegistriesByBookId(newBook.Id);
+                registries.ToList().ForEach(async r => await registryRepository.Add(new Registry() { BookId=newBook.Id, AuthorId=r.AuthorId }));
+
+                List<Author> authors = await GetAuthorsByBookId(registryRepository, authorRepository, newBook.Id);
+
+                BookEndpointResponseBook responseBook = MakeResponseBookDTO(newBook, authors);
                 return TypedResults.Created($"https://localhost:7054/books/{responseBook.Id}", responseBook);
             }
             catch (Exception ex)
@@ -152,6 +174,18 @@ namespace exercise.webapi.Endpoints
             }
 
             return responseBook;
+        }
+
+        public static async Task<List<Author>> GetAuthorsByBookId(IRegistryRepository registryRepository, IAuthorRepository authorRepository, int bookId)
+        {
+            var registries = await registryRepository.GetRegistriesByBookId(bookId);
+
+            List<Author> authors = new List<Author>();
+            foreach (var registry in registries)
+            {
+                authors.Add(await authorRepository.GetById(registry.AuthorId));
+            }
+            return authors;
         }
     }
 }

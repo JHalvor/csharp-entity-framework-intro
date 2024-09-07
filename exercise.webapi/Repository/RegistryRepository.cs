@@ -29,19 +29,14 @@ namespace exercise.webapi.Repository
             return target;
         }
 
-        public async Task<Registry> GetByAuthorId(int id)
-        {
-            return await _db.Registries.FirstOrDefaultAsync(r => r.AuthorId == id);
-        }
-
-        public async Task<IEnumerable<Registry>> GetRegistriesAuthorId(int id)
-        {
-            return await _db.Registries.Where(r => r.AuthorId == id).ToListAsync();
-        }
-
-        public async Task<IEnumerable<Registry>> GetRegistriesBookId(int id)
+        public async Task<IEnumerable<Registry>> GetRegistriesByBookId(int id)
         {
             return await _db.Registries.Where(r => r.BookId == id).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Registry>> GetRegistriesByAuthorId(int id)
+        {
+            return await _db.Registries.Where(r => r.AuthorId == id).ToListAsync();
         }
     }
 }

@@ -14,6 +14,16 @@ namespace exercise.webapi.Repository
             _db = db;
         }
 
+        public async Task<IEnumerable<Book>> GetAllBooks()
+        {
+            return await _db.Books.ToListAsync();
+        }
+
+        public async Task<Book> GetById(int id)
+        {
+            return await _db.Books.FirstOrDefaultAsync(b => b.Id == id);
+        }
+
         public async Task<Book> Add(Book entity)
         {
             await _db.AddAsync(entity);
@@ -28,25 +38,6 @@ namespace exercise.webapi.Repository
 
             await _db.SaveChangesAsync();
             return bookTarget;
-        }
-
-        public async Task<IEnumerable<Book>> GetAllBooks()
-        {
-            return await _db.Books.ToListAsync();
-        }
-
-        public async Task<Book> GetById(int id)
-        {
-            return await _db.Books.FirstOrDefaultAsync(b => b.Id == id);
-        }
-
-        public async Task<Book> UpdateById(int id, Book entity)
-        {
-            var target = await _db.Books.FirstOrDefaultAsync(b => b.Id == id);
-            target.Title = entity.Title;
-            _db.Attach(target).State = EntityState.Modified;
-            await _db.SaveChangesAsync();
-            return target;
         }
     }
 }

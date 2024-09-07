@@ -10,6 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+builder.Services.AddScoped<IRegistryRepository, RegistryRepository>();
 builder.Services.AddDbContext<DataContext>();
 
 var app = builder.Build();
@@ -23,5 +24,5 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.ConfigureBookEndpoints();
-app.ConfigureAuthorEndpoints();
+//app.ConfigureAuthorEndpoints();
 app.Run();
