@@ -24,5 +24,5 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.ConfigureBookEndpoints();
-//app.ConfigureAuthorEndpoints();
+app.ConfigureAuthorEndpoints();
 app.Run();

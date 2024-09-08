@@ -20,5 +20,7 @@ namespace exercise.webapi.Models
 
         [Column("email")]
         public string Email { get; set; }
+
+        public List<Book> Books { get; set; } = new List<Book>();
     }
 }

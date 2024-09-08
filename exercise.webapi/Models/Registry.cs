@@ -3,17 +3,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.webapi.Models
 {
-    [Table("registry")]
+    [Table("registries")]
     public class Registry
     {
         [Key]
         [Column("id")]
         public int Id { get; set; }
 
-        [ForeignKey("authorFk")]
+        [ForeignKey("AuthorId")]
         public int AuthorId { get; set; }
 
-        [ForeignKey("bookFk")]
+        [ForeignKey("BookId")]
         public int BookId { get; set; }
     }
 }

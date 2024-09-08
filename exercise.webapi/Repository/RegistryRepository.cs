@@ -23,6 +23,10 @@ namespace exercise.webapi.Repository
         public async Task<Registry> DeleteById(int bookId, int authorId)
         {
             var target = await _db.Registries.FirstOrDefaultAsync(r => r.BookId == bookId && r.AuthorId == authorId);
+            if (target == null)
+            {
+                return null;
+            }
             _db.Registries.Remove(target);
 
             await _db.SaveChangesAsync();

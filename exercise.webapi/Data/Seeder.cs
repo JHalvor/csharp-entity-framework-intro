@@ -83,7 +83,6 @@ namespace exercise.webapi.Data
 
         public Seeder()
         {
-
             Random authorRandom = new Random();
             Random bookRandom = new Random();
 
@@ -96,6 +95,7 @@ namespace exercise.webapi.Data
                 author.FirstName = _firstnames[authorRandom.Next(_firstnames.Count)];
                 author.LastName = _lastnames[authorRandom.Next(_lastnames.Count)];
                 author.Email = $"{author.FirstName}.{author.LastName}@{_domain[authorRandom.Next(_domain.Count)]}".ToLower();
+                author.Books = _registries.Where(r => r.AuthorId == author.Id).SelectMany(r => _books.Where(b => b.Id == r.BookId)).ToList();
                 _authors.Add(author);
             }
 
@@ -104,6 +104,7 @@ namespace exercise.webapi.Data
                 Book book = new Book();
                 book.Id = y;
                 book.Title = $"{_firstword[bookRandom.Next(_firstword.Count)]} {_secondword[bookRandom.Next(_secondword.Count)]} {_thirdword[bookRandom.Next(_thirdword.Count)]}";
+                book.Authors = _registries.Where(r => r.BookId == book.Id).SelectMany(r => _authors.Where(a => a.Id == r.AuthorId)).ToList();
                 _books.Add(book);
             }
 

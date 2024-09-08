@@ -11,7 +11,5 @@ namespace exercise.webapi.DTO
         public string LastName { get; set; }
 
         public string Email { get; set; }
-
-        public List<BookEndpointResponseBook> Books { get; set; } = new List<BookEndpointResponseBook>();
     }
 }

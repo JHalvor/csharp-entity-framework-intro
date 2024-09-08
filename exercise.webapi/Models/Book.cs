@@ -12,5 +12,7 @@ namespace exercise.webapi.Models
 
         [Column("title")]
         public string Title { get; set; }
+
+        public List<Author> Authors { get; set; } = new List<Author>();
     }
 }

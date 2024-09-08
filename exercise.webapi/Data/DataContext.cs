@@ -1,5 +1,6 @@
 ﻿using exercise.webapi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Emit;
@@ -24,6 +25,19 @@ namespace exercise.webapi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             Seeder seeder = new Seeder();
+
+            modelBuilder.Entity<Author>()
+                .HasMany(a => a.Books)
+                .WithMany(b => b.Authors)
+                .UsingEntity<Registry>(r => r.ToTable("registries"));
+
+            modelBuilder.Entity<Book>()
+                .HasMany(b => b.Authors)
+                .WithMany(a => a.Books)
+                .UsingEntity<Registry>(r => r.ToTable("registries"));
+
+            modelBuilder.Entity<Registry>()
+                .HasKey(r => r.Id);
 
             modelBuilder.Entity<Author>().HasData(seeder.Authors);
             modelBuilder.Entity<Book>().HasData(seeder.Books);
