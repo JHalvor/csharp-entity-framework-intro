@@ -10,7 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
-builder.Services.AddScoped<IRegistryRepository, RegistryRepository>();
+builder.Services.AddScoped<IAuthorBookRepository, AuthorBookRepository>();
 builder.Services.AddDbContext<DataContext>();
 
 var app = builder.Build();

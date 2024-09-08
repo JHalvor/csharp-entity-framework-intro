@@ -29,23 +29,23 @@ namespace exercise.webapi.Data
             modelBuilder.Entity<Author>()
                 .HasMany(a => a.Books)
                 .WithMany(b => b.Authors)
-                .UsingEntity<Registry>(r => r.ToTable("registries"));
+                .UsingEntity<AuthorBook>(ab => ab.ToTable("authorBook"));
 
             modelBuilder.Entity<Book>()
                 .HasMany(b => b.Authors)
                 .WithMany(a => a.Books)
-                .UsingEntity<Registry>(r => r.ToTable("registries"));
+                .UsingEntity<AuthorBook>(ab => ab.ToTable("authorBook"));
 
-            modelBuilder.Entity<Registry>()
-                .HasKey(r => r.Id);
+            modelBuilder.Entity<AuthorBook>()
+                .HasKey(ab => ab.Id);
 
             modelBuilder.Entity<Author>().HasData(seeder.Authors);
             modelBuilder.Entity<Book>().HasData(seeder.Books);
-            modelBuilder.Entity<Registry>().HasData(seeder.Registries);
+            modelBuilder.Entity<AuthorBook>().HasData(seeder.AuthorBooks);
         }
 
         public DbSet<Author> Authors { get; set; }
         public DbSet<Book> Books { get; set; }
-        public DbSet<Registry> Registries { get; set; }
+        public DbSet<AuthorBook> AuthorBooks { get; set; }
     }
 }

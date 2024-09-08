@@ -59,13 +59,13 @@ namespace exercise.webapi.Endpoints
             }
             catch (Exception ex)
             {
-                return TypedResults.BadRequest("Invalid book object");
+                return TypedResults.Problem(ex.ToString());
             }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public static async Task<IResult> AssignAuthor(IBookRepository bookRepository, IAuthorRepository authorRepository, IRegistryRepository registryRepository, int bookId, int authorId)
+        public static async Task<IResult> AssignAuthor(IBookRepository bookRepository, IAuthorRepository authorRepository, IAuthorBookRepository authorBookRepository, int bookId, int authorId)
         {
             try
             {
@@ -81,7 +81,7 @@ namespace exercise.webapi.Endpoints
                     return TypedResults.NotFound("Author Not Found");
                 }
 
-                var registryResult = await registryRepository.Add(new Registry() { BookId = bookId, AuthorId = authorId });
+                var authorBookResult = await authorBookRepository.Add(new AuthorBook() { BookId = bookId, AuthorId = authorId });
                 var updatedBookResult = await bookRepository.GetById(bookId);
 
                 // Custom DTO
@@ -96,7 +96,7 @@ namespace exercise.webapi.Endpoints
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public static async Task<IResult> RemoveAuthor(IBookRepository bookRepository, IAuthorRepository authorRepository, IRegistryRepository registryRepository, int bookId, int authorId)
+        public static async Task<IResult> RemoveAuthor(IBookRepository bookRepository, IAuthorRepository authorRepository, IAuthorBookRepository authorBookRepository, int bookId, int authorId)
         {
             try
             {
@@ -112,8 +112,8 @@ namespace exercise.webapi.Endpoints
                     return TypedResults.NotFound("Author Not Found");
                 }
 
-                var deletedRegistry = await registryRepository.DeleteById(bookId, authorId);
-                if (deletedRegistry is null)
+                var deletedAuthorBook = await authorBookRepository.DeleteById(bookId, authorId);
+                if (deletedAuthorBook is null)
                 {
                     return TypedResults.NotFound("Author not assigned to book");
                 }
@@ -126,13 +126,14 @@ namespace exercise.webapi.Endpoints
             }
             catch (Exception ex)
             {
-                return TypedResults.Problem(ex.Message);
+                return TypedResults.Problem(ex.ToString());
             }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public static async Task<IResult> DeleteBook(IBookRepository bookRepository, IRegistryRepository registryRepository, int id)
+        public static async Task<IResult> DeleteBook(IBookRepository bookRepository, IAuthorBookRepository authorBookRepository, int id)
         {
             try
             {
@@ -142,25 +143,25 @@ namespace exercise.webapi.Endpoints
                     return TypedResults.NotFound("Book Not Found");
                 }
 
+                // Deleting relations between the deleted book and authors
+                var authorBooks = await authorBookRepository.GetAuthorBooksByBookId(id);
+                authorBooks.ToList().ForEach(async ab => await authorBookRepository.DeleteById(id, ab.AuthorId));
+
                 //custom DTO
                 BookEndpointResponseBook responseBook = MakeResponseBookDTO(target);
-
-                // Deleting relations between the deleted book and authors
-                var registries = await registryRepository.GetRegistriesByBookId(id);
-                registries.ToList().ForEach(async r => await registryRepository.DeleteById(id, r.AuthorId));
 
                 return TypedResults.Ok(responseBook);
             }
             catch (Exception ex)
             {
-                return TypedResults.Problem(ex.Message);
+                return TypedResults.Problem(ex.ToString());
             }
         }
 
         [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public static async Task<IResult> AddABook(IBookRepository bookRepository, IAuthorRepository authorRepository, IRegistryRepository registryRepository, BookPostModel model)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public static async Task<IResult> AddABook(IBookRepository bookRepository, IAuthorRepository authorRepository, IAuthorBookRepository authorBookRepository, BookPostModel model)
         {
             try
             {
@@ -175,10 +176,10 @@ namespace exercise.webapi.Endpoints
 
                 var newBook = await bookRepository.Add(new Book() { Title = model.Title });
 
-                // Creating registry relations between the created book and its authors
+                // Creating AuthorBook relations between the created book and its authors
                 foreach (int authorId in model.AuthorIds)
                 {
-                    await registryRepository.Add(new Registry() { BookId = newBook.Id, AuthorId = authorId });
+                    await authorBookRepository.Add(new AuthorBook() { BookId = newBook.Id, AuthorId = authorId });
                 }
 
                 BookEndpointResponseBook responseBook = MakeResponseBookDTO(newBook);
@@ -186,7 +187,7 @@ namespace exercise.webapi.Endpoints
             }
             catch (Exception ex)
             {
-                return TypedResults.BadRequest("Invalid book object");
+                return TypedResults.BadRequest($"Invalid book object - {ex}");
             }
         }
 

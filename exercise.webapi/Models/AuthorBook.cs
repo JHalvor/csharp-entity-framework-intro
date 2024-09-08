@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace exercise.webapi.Models
 {
-    [Table("registries")]
-    public class Registry
+    [Table("authorBook")]
+    public class AuthorBook
     {
         [Key]
         [Column("id")]

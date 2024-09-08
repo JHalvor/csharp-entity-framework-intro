@@ -33,7 +33,7 @@ namespace exercise.webapi.Repository
 
         public async Task<Author> UpdateById(int id, Author entity)
         {
-            var target = await _db.Authors.FirstOrDefaultAsync(a => a.Id == id);
+            var target = await _db.Authors.Include(a => a.Books).FirstOrDefaultAsync(a => a.Id == id);
             target.FirstName = entity.FirstName;
             target.LastName = entity.LastName;
             target.Email = entity.Email;

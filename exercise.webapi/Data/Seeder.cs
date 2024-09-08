@@ -79,7 +79,7 @@ namespace exercise.webapi.Data
 
         private List<Author> _authors = new List<Author>();
         private List<Book> _books = new List<Book>();
-        private List<Registry> _registries = new List<Registry>();
+        private List<AuthorBook> _authorBooks = new List<AuthorBook>();
 
         public Seeder()
         {
@@ -95,7 +95,7 @@ namespace exercise.webapi.Data
                 author.FirstName = _firstnames[authorRandom.Next(_firstnames.Count)];
                 author.LastName = _lastnames[authorRandom.Next(_lastnames.Count)];
                 author.Email = $"{author.FirstName}.{author.LastName}@{_domain[authorRandom.Next(_domain.Count)]}".ToLower();
-                author.Books = _registries.Where(r => r.AuthorId == author.Id).SelectMany(r => _books.Where(b => b.Id == r.BookId)).ToList();
+                author.Books = _authorBooks.Where(ab => ab.AuthorId == author.Id).SelectMany(ab => _books.Where(b => b.Id == ab.BookId)).ToList();
                 _authors.Add(author);
             }
 
@@ -104,22 +104,22 @@ namespace exercise.webapi.Data
                 Book book = new Book();
                 book.Id = y;
                 book.Title = $"{_firstword[bookRandom.Next(_firstword.Count)]} {_secondword[bookRandom.Next(_secondword.Count)]} {_thirdword[bookRandom.Next(_thirdword.Count)]}";
-                book.Authors = _registries.Where(r => r.BookId == book.Id).SelectMany(r => _authors.Where(a => a.Id == r.AuthorId)).ToList();
+                book.Authors = _authorBooks.Where(ab => ab.BookId == book.Id).SelectMany(ab => _authors.Where(a => a.Id == ab.AuthorId)).ToList();
                 _books.Add(book);
             }
 
             for (int z = 1; z < entitiesToCreate * 3; z++)
             {
-                Registry registry = new Registry();
-                registry.Id = z;
-                registry.AuthorId = _authors[authorRandom.Next(_authors.Count)].Id;
-                registry.BookId = _books[bookRandom.Next(_books.Count)].Id;
+                AuthorBook authorBook = new AuthorBook();
+                authorBook.Id = z;
+                authorBook.AuthorId = _authors[authorRandom.Next(_authors.Count)].Id;
+                authorBook.BookId = _books[bookRandom.Next(_books.Count)].Id;
 
-                _registries.Add(registry);
+                _authorBooks.Add(authorBook);
             }
         }
         public List<Author> Authors { get { return _authors; } }
         public List<Book> Books { get { return _books; } }
-        public List<Registry> Registries { get { return _registries; } }
+        public List<AuthorBook> AuthorBooks { get { return _authorBooks; } }
     }
 }
